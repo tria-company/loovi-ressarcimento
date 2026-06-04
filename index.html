@@ -89,7 +89,9 @@
   option{background:#111;color:#fff}
   .pager{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px;flex-wrap:wrap}
   .pager .info{font-size:.82rem;color:var(--muted)}
-  .pg-btns{display:flex;gap:6px;align-items:center}
+  .pg-btns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .per-label{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--muted);margin-right:6px}
+  .per-label select{min-width:0;width:auto;padding:7px 9px;font-size:.82rem}
   .btn{font-family:inherit;font-size:.8rem;font-weight:600;color:#fff;background:rgba(255,255,255,.05);
     border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:8px 14px;cursor:pointer;transition:.15s}
   .btn:hover:not(:disabled){border-color:var(--neon);color:var(--neon)}
@@ -255,6 +257,14 @@
       <div class="pager" id="pager" style="display:none">
         <div class="info" id="pager-info"></div>
         <div class="pg-btns">
+          <label class="per-label">Por página
+            <select id="sel-per">
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+            </select>
+          </label>
           <button class="btn" id="prev">‹ Anterior</button>
           <span class="info" id="page-label"></span>
           <button class="btn" id="next">Próxima ›</button>
@@ -281,7 +291,7 @@
 const SB_URL = 'https://uytizgmncjbbbzkflimb.supabase.co';
 const SB_KEY = 'sb_publishable_A3vjESWBD2VB4IEaEhOq-A_tVX6gn8K';
 const TABLE  = 'loovi_ressarcimento';
-const PER    = 25;
+let   PER    = 25;
 
 const $ = s => document.querySelector(s);
 const fmt = n => (n||0).toLocaleString('pt-BR');
@@ -498,6 +508,9 @@ async function initRegistros(){
   });
   $('#prev').addEventListener('click',()=>{if(page>1){page--;loadPage();}});
   $('#next').addEventListener('click',()=>{if(page<totalPages()){page++;loadPage();}});
+  $('#sel-per').addEventListener('change',e=>{
+    const first=(page-1)*PER; PER=+e.target.value; page=Math.floor(first/PER)+1; loadPage();
+  });
   if(ENTRIES.length){ cur=ENTRIES[0]; loadPage(); }
   else $('#reg-content').innerHTML='<div class="empty">Sem dados.</div>';
 }
