@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loovi · Ressarcimento — Painel</title>
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --neon:#B5FF00; --bg:#000; --card:#0D0D0D; --card2:#111;
+    --line:rgba(255,255,255,.08); --line-soft:rgba(255,255,255,.05);
+    --txt:#e5e7eb; --muted:rgba(255,255,255,.45); --muted2:rgba(255,255,255,.30);
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+    line-height:1.6;color:var(--txt);background:var(--bg);-webkit-font-smoothing:antialiased}
+  .topnav{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.92);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.1)}
+  .topnav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:0 20px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:#fff;letter-spacing:.02em;padding:14px 0;margin-right:auto}
+  .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--neon);box-shadow:0 0 12px var(--neon)}
+  .brand small{display:block;font-size:.62rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.14em}
+  .navlink{display:inline-block;padding:12px 14px;font-size:.78rem;font-weight:600;text-transform:uppercase;
+    letter-spacing:.04em;color:rgba(255,255,255,.5);text-decoration:none;background:none;border:none;cursor:pointer;
+    border-bottom:2px solid transparent;transition:color .15s,border-color .15s;font-family:inherit}
+  .navlink:hover{color:var(--neon)}
+  .navlink.active{color:var(--neon);border-bottom-color:var(--neon)}
+  .container{max-width:1280px;margin:0 auto;padding:24px 20px 60px}
+  .view{display:none}.view.active{display:block}
+  .hero{padding:36px 0 8px}
+  .kicker{display:inline-flex;align-items:center;gap:8px;color:var(--neon);font-size:.72rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:.22em;margin-bottom:14px}
+  .hero h1{font-size:2.4rem;font-weight:800;line-height:1.15;color:#fff}
+  .hero h1 .neon{color:var(--neon)}
+  .hero p{color:var(--muted);max-width:680px;margin-top:12px;font-size:1.02rem}
+  .rule{height:1px;width:120px;background:var(--neon);margin:20px 0 4px}
+  .card{background:var(--card);border-radius:10px;border:1px solid rgba(255,255,255,.06);padding:28px;margin-bottom:22px}
+  .card h2{font-size:1.25rem;color:#fff;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+  .card h2 .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;
+    background:var(--neon);color:#000;font-size:.72rem;font-weight:800}
+  .subtitle{font-size:.92rem;color:var(--muted);margin-bottom:22px;padding-bottom:14px;border-bottom:2px solid var(--neon)}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin:8px 0 4px}
+  .stat-card{padding:20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+    border-left:4px solid var(--neon);border-radius:8px}
+  .stat-label{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .stat-value{font-size:2.1rem;font-weight:800;color:var(--neon);margin:4px 0;line-height:1.1}
+  .stat-detail{font-size:.82rem;color:var(--muted2)}
+  .bar-row{display:grid;grid-template-columns:170px 1fr 70px;align-items:center;gap:14px;margin-bottom:10px}
+  .bar-name{font-size:.82rem;color:rgba(255,255,255,.75);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-track{background:rgba(255,255,255,.05);border-radius:5px;height:22px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#7da800,var(--neon));
+    display:flex;align-items:center;min-width:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+  .bar-val{font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+  .table-wrap{overflow-x:auto;border:1px solid var(--line-soft);border-radius:8px}
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  thead th{text-align:left;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--muted);padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);
+    position:sticky;top:0;white-space:nowrap}
+  thead th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tbody td{padding:10px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  tbody tr{transition:background .12s}
+  tbody tr:hover{background:rgba(181,255,0,.05)}
+  tbody tr.clickable{cursor:pointer}
+  .t-total td{font-weight:800;color:#fff;background:rgba(181,255,0,.06);border-top:1px solid rgba(255,255,255,.15)}
+  .cell-clip{max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.72rem;font-weight:700;white-space:nowrap}
+  .badge.yes{background:rgba(181,255,0,.15);color:var(--neon);border:1px solid rgba(181,255,0,.35)}
+  .badge.no{background:rgba(255,90,90,.12);color:#ff8585;border:1px solid rgba(255,90,90,.3)}
+  .badge.neutral{background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);border:1px solid var(--line)}
+  .badge.ress-yes{background:var(--neon);color:#000;border:1px solid var(--neon);font-weight:800;
+    box-shadow:0 0 10px rgba(181,255,0,.35)}
+  .badge.ress-no{background:rgba(255,90,90,.12);color:#ff8585;border:1px solid rgba(255,90,90,.35)}
+  .stat-card.hi{background:rgba(181,255,0,.07);border-color:rgba(181,255,0,.4);border-left-color:var(--neon)}
+  .stat-card.hi .stat-label{color:var(--neon)}
+  .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:18px}
+  .ctrl{display:flex;flex-direction:column;gap:5px}
+  .ctrl label{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  select,input[type=text]{font-family:inherit;font-size:.88rem;color:#fff;background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:9px 12px;outline:none;transition:border-color .15s}
+  select:focus,input[type=text]:focus{border-color:var(--neon)}
+  select{min-width:300px;cursor:pointer}
+  input[type=text]{min-width:240px}
+  option{background:#111;color:#fff}
+  .pager{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px;flex-wrap:wrap}
+  .pager .info{font-size:.82rem;color:var(--muted)}
+  .pg-btns{display:flex;gap:6px;align-items:center}
+  .btn{font-family:inherit;font-size:.8rem;font-weight:600;color:#fff;background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:8px 14px;cursor:pointer;transition:.15s}
+  .btn:hover:not(:disabled){border-color:var(--neon);color:var(--neon)}
+  .btn:disabled{opacity:.35;cursor:not-allowed}
+  .empty,.loading{padding:50px 20px;text-align:center;color:var(--muted)}
+  .spinner{display:inline-block;width:26px;height:26px;border:3px solid rgba(255,255,255,.15);
+    border-top-color:var(--neon);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;
+    display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+  .modal-bg.open{display:flex}
+  .modal{background:var(--card);border:1px solid rgba(255,255,255,.12);border-radius:12px;max-width:780px;width:100%;
+    box-shadow:0 24px 70px rgba(0,0,0,.6)}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:22px 26px;
+    border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card);border-radius:12px 12px 0 0}
+  .modal-head h3{font-size:1.1rem;color:#fff}
+  .modal-head .sub{font-size:.8rem;color:var(--muted);margin-top:3px}
+  .x{background:none;border:none;color:var(--muted);font-size:1.6rem;cursor:pointer;line-height:1;padding:0 4px}
+  .x:hover{color:var(--neon)}
+  .modal-body{padding:8px 26px 26px;min-height:80px}
+  .grp-title{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--neon);
+    margin:22px 0 4px;padding-top:14px;border-top:1px solid var(--line-soft);font-weight:700}
+  .grp-title:first-child{border-top:none;padding-top:0;margin-top:6px}
+  .field{padding:11px 0;border-bottom:1px solid var(--line-soft)}
+  .field .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px}
+  .field .v{font-size:.92rem;color:var(--txt);white-space:pre-wrap;word-break:break-word}
+  .field .v.big{color:rgba(255,255,255,.82)}
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+  .footer{margin-top:18px;padding:22px 28px;background:var(--card);border-radius:10px;border:1px solid rgba(255,255,255,.06);
+    font-size:.82rem;color:var(--muted)}
+  .footer b{color:rgba(255,255,255,.7)}
+  .pill{display:inline-block;font-size:.66rem;font-weight:700;color:var(--neon);background:rgba(181,255,0,.1);
+    border:1px solid rgba(181,255,0,.3);border-radius:999px;padding:2px 10px;margin-left:8px;vertical-align:middle}
+  /* ── login gate ── */
+  .login-gate{position:fixed;inset:0;z-index:500;background:radial-gradient(circle at 50% 0%,#0d0d0d,#000 70%);
+    display:flex;align-items:center;justify-content:center;padding:20px}
+  .login-gate.hidden{display:none}
+  .login-box{width:100%;max-width:380px;background:var(--card);border:1px solid rgba(255,255,255,.1);
+    border-radius:14px;padding:34px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+  .login-brand{display:flex;align-items:center;gap:8px;font-weight:800;color:#fff;margin-bottom:24px;letter-spacing:.02em}
+  .login-brand .dot{width:11px;height:11px;border-radius:50%;background:var(--neon);box-shadow:0 0 12px var(--neon)}
+  .login-brand small{color:var(--muted);font-weight:600;font-size:.6rem;text-transform:uppercase;letter-spacing:.14em}
+  .login-box h2{color:#fff;font-size:1.3rem;margin-bottom:4px}
+  .login-box>p{color:var(--muted);font-size:.88rem;margin-bottom:8px}
+  .login-box label{display:block;font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:16px 0 5px}
+  .login-box input{width:100%;font-family:inherit;font-size:.95rem;color:#fff;background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:11px 13px;outline:none;transition:border-color .15s}
+  .login-box input:focus{border-color:var(--neon)}
+  .login-box button{width:100%;margin-top:24px;font-family:inherit;font-size:.95rem;font-weight:800;color:#000;
+    background:var(--neon);border:none;border-radius:8px;padding:12px;cursor:pointer;transition:filter .15s}
+  .login-box button:hover{filter:brightness(.93)}
+  .login-err{color:#ff8585;font-size:.82rem;margin-top:12px;min-height:18px}
+  #logout{color:rgba(255,255,255,.32)}#logout:hover{color:#ff8585;border-bottom-color:#ff8585}
+  @media(max-width:768px){
+    .hero h1{font-size:1.7rem}
+    .bar-row{grid-template-columns:120px 1fr 56px;gap:8px}
+    .bar-name{font-size:.74rem}
+    .field-grid{grid-template-columns:1fr}
+    .card{padding:20px}
+    select,input[type=text]{min-width:0;width:100%}
+    .ctrl{flex:1 1 100%}
+  }
+</style>
+</head>
+<body>
+
+<div class="login-gate" id="login-gate">
+  <form class="login-box" id="login-form">
+    <div class="login-brand"><span class="dot"></span>LOOVI&nbsp;<small>Ressarcimento</small></div>
+    <h2>Acesso restrito</h2>
+    <p>Entre com suas credenciais para visualizar o painel.</p>
+    <label for="lg-user">Login</label>
+    <input type="text" id="lg-user" autocomplete="username" autocapitalize="none" spellcheck="false">
+    <label for="lg-pass">Senha</label>
+    <input type="password" id="lg-pass" autocomplete="current-password">
+    <div class="login-err" id="lg-err"></div>
+    <button type="submit">Entrar</button>
+  </form>
+</div>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="brand"><span class="dot"></span><span>LOOVI<small>Ressarcimento</small></span></div>
+    <button class="navlink active" data-view="dashboard">Painel</button>
+    <button class="navlink" data-view="registros">Registros</button>
+    <button class="navlink" id="logout">Sair</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- ══ DASHBOARD ══ -->
+  <section class="view active" id="view-dashboard">
+    <div class="hero">
+      <span class="kicker">▸ Análise de Ressarcimento · 2024–2025</span>
+      <h1>Documentos analisados<span class="neon">.</span></h1>
+      <p>Painel consolidado das análises de ressarcimento por analista. Dados servidos em tempo real pelo banco (Supabase).</p>
+      <div class="rule"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">0</span> Resumo geral</h2>
+      <p class="subtitle">Total de documentos por período e por analista</p>
+      <div class="stats-grid" id="kpis"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">1</span> Documentos por analista</h2>
+      <p class="subtitle">Volume total (2024 + 2025), ordenado do maior para o menor</p>
+      <div id="chart"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">2</span> Tabela consolidada</h2>
+      <p class="subtitle">Distribuição por ano</p>
+      <div class="table-wrap">
+        <table id="summary-table">
+          <thead><tr><th>Analista</th><th class="num">2024</th><th class="num">2025</th><th class="num">Total</th><th class="num">Ressarc.</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p><b>Loovi · Ressarcimento</b> — frontend na Vercel + dados no Supabase.</p>
+      <p style="margin-top:5px" id="foot-meta"></p>
+    </div>
+  </section>
+
+  <!-- ══ REGISTROS ══ -->
+  <section class="view" id="view-registros">
+    <div class="hero">
+      <span class="kicker">▸ Explorador de registros</span>
+      <h1>Registros<span class="neon">.</span></h1>
+      <p>Busca e paginação rodam no servidor (Supabase) — abra cada documento para ver a análise completa, com todas as colunas.</p>
+      <div class="rule"></div>
+    </div>
+
+    <div class="card">
+      <div class="controls">
+        <div class="ctrl">
+          <label for="sel-sheet">Analista · Período</label>
+          <select id="sel-sheet"></select>
+        </div>
+        <div class="ctrl">
+          <label for="sel-ress">Ressarcimento</label>
+          <select id="sel-ress" style="min-width:190px">
+            <option value="">Todos</option>
+            <option value="sim">✓ Só ressarcimento</option>
+            <option value="nao">Não ressarcimento</option>
+          </select>
+        </div>
+        <div class="ctrl" style="flex:1">
+          <label for="search">Buscar (placa, B.O., resumo, conclusão, relato…)</label>
+          <input type="text" id="search" placeholder="Digite e aguarde…" autocomplete="off">
+        </div>
+      </div>
+
+      <div id="reg-content">
+        <div class="loading"><div class="spinner"></div><div>Carregando…</div></div>
+      </div>
+
+      <div class="pager" id="pager" style="display:none">
+        <div class="info" id="pager-info"></div>
+        <div class="pg-btns">
+          <button class="btn" id="prev">‹ Anterior</button>
+          <span class="info" id="page-label"></span>
+          <button class="btn" id="next">Próxima ›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ══ MODAL ══ -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h3 id="m-title">Detalhe</h3><div class="sub" id="m-sub"></div></div>
+      <button class="x" id="m-close">&times;</button>
+    </div>
+    <div class="modal-body" id="m-body"></div>
+  </div>
+</div>
+
+<script>
+/* ════════ CONFIG (chaves públicas — seguras no frontend) ════════ */
+const SB_URL = 'https://uytizgmncjbbbzkflimb.supabase.co';
+const SB_KEY = 'sb_publishable_A3vjESWBD2VB4IEaEhOq-A_tVX6gn8K';
+const TABLE  = 'loovi_ressarcimento';
+const PER    = 25;
+
+const $ = s => document.querySelector(s);
+const fmt = n => (n||0).toLocaleString('pt-BR');
+const esc = s => (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cleanDate = s => !s?'':String(s).replace(/\s+00:00:00$/,'').replace(/(\d{4})-(\d{2})-(\d{2})/,'$3/$2/$1');
+
+/* ════════ LOGIN (trava lado-cliente) ════════ */
+const AUTH_USER='loovi', AUTH_PASS='Tria@2026';
+function unlock(){ $('#login-gate').classList.add('hidden'); document.body.style.overflow=''; }
+if(sessionStorage.getItem('loovi_auth')==='1'){ unlock(); }
+else { document.body.style.overflow='hidden'; setTimeout(()=>$('#lg-user').focus(),60); }
+$('#login-form').addEventListener('submit',e=>{
+  e.preventDefault();
+  const u=$('#lg-user').value.trim().toLowerCase(), p=$('#lg-pass').value;
+  if(u===AUTH_USER && p===AUTH_PASS){
+    sessionStorage.setItem('loovi_auth','1'); $('#lg-err').textContent=''; unlock();
+  }else{
+    $('#lg-err').textContent='Login ou senha incorretos.';
+    $('#lg-pass').value=''; $('#lg-pass').focus();
+  }
+});
+$('#logout').addEventListener('click',()=>{ sessionStorage.removeItem('loovi_auth'); location.reload(); });
+
+/* short alias -> real column name */
+const COL = {
+  ress:'analise_detalhamento_sinistro_ressarcimento',
+  arquivo:'arquivo_origem', pessoa:'pessoa', placa:'identificacao_envolvidos_placa_segurado',
+  veiculo:'identificacao_veiculo_veiculo', titular:'analise_franquia_fipe_grupo_titular_crlv',
+  data_fato:'analise_cobertura_sinistro_data_fato', dia_semana:'analise_cobertura_sinistro_dia_semana',
+  num_bo:'analise_cobertura_sinistro_numero_bo', fin_tipo:'analise_cobertura_sinistro_analise_financeira_tipo',
+  coberto:'analise_cobertura_sinistro_analise_financeira_esta_coberto', cnh_status:'consulta_detran_cnh_status',
+  cnh_pontos:'consulta_detran_cnh_pontos', resumo:'analise_detalhamento_sinistro_resumo_fato',
+  conclusao:'conclusao_analise_conclusao_segurado', classif:'conclusao_analise_classificacao_no_fato',
+  monta:'conclusao_analise_monta', analista:'conclusao_analise_analista_responsavel',
+  inicio:'conclusao_analise_inicio_analise', fim:'conclusao_analise_conclusao_analise'
+};
+const LIST_SELECT = 'id,' + Object.entries(COL).map(([a,c])=>`${a}:${c}`).join(',');
+
+/* full labels for the detail modal, grouped */
+const GROUPS = [
+  {t:'Identificação', f:[
+    ['identificacao_envolvidos_placa_segurado','Placa do segurado'],
+    ['identificacao_veiculo_veiculo','Veículo'],
+    ['analise_franquia_fipe_grupo_titular_crlv','Titular do CRLV'],
+    ['pessoa','Documento / Pessoa'],
+    ['identificacao_envolvidos_protocolo_segurado','Protocolo do segurado'],
+    ['identificacao_veiculo_cliente_chave_natural','Cliente (chave natural)'],
+  ]},
+  {t:'Franquia / FIPE', f:[
+    ['analise_franquia_fipe_grupo_grupo','Grupo'],
+    ['analise_franquia_fipe_grupo_tipo_franquia','Tipo de franquia'],
+    ['analise_franquia_fipe_grupo_franquia_numero','Franquia — número'],
+    ['analise_franquia_fipe_grupo_franquia_valor','Franquia — valor'],
+    ['analise_franquia_fipe_grupo_fipe_mes_fato','FIPE — mês do fato'],
+  ]},
+  {t:'Sinistro / Cobertura', f:[
+    ['analise_detalhamento_sinistro_ressarcimento','Ressarcimento'],
+    ['analise_cobertura_segurado','Cobertura — segurado'],
+    ['analise_cobertura_terceiros','Cobertura — terceiros'],
+    ['analise_cobertura_sinistro_data_fato','Data do fato'],
+    ['analise_cobertura_sinistro_hora_fato','Hora do fato'],
+    ['analise_cobertura_sinistro_dia_semana','Dia da semana'],
+    ['analise_cobertura_sinistro_data_registro_bo','Data registro B.O.'],
+    ['analise_cobertura_sinistro_hora_registro_bo','Hora registro B.O.'],
+    ['analise_cobertura_sinistro_numero_bo','Nº do B.O.'],
+    ['analise_cobertura_sinistro_tipo_bo','Tipo de B.O.'],
+    ['analise_cobertura_sinistro_analise_financeira_vencimento_erp','Vencimento (ERP)'],
+    ['analise_cobertura_sinistro_analise_financeira_data_pagamento','Data de pagamento'],
+    ['analise_cobertura_sinistro_analise_financeira_tipo','Tipo (financeiro)'],
+    ['analise_cobertura_sinistro_analise_financeira_esta_coberto','Está coberto?'],
+    ['analise_cobertura_sinistro_assistencia_24hrs','Assistência 24h'],
+  ]},
+  {t:'Consulta DETRAN', f:[
+    ['consulta_detran_cnh_status','CNH — status'],
+    ['consulta_detran_cnh_categoria','CNH — categoria'],
+    ['consulta_detran_cnh_validade','CNH — validade'],
+    ['consulta_detran_cnh_pontos','CNH — pontos'],
+    ['consulta_detran_cnh_obs','CNH — observação'],
+    ['consulta_detran_detalhamento_restricao_cnh','CNH — restrições (detalhe)'],
+    ['consulta_detran_crlv_ano','CRLV — ano'],
+    ['consulta_detran_ipva_licenciamento','IPVA / licenciamento'],
+    ['consulta_detran_uf','UF'],
+    ['consulta_detran_multas','Multas'],
+    ['consulta_detran_multa_sinistro','Multa no sinistro'],
+    ['consulta_detran_restricoes','Restrições (DETRAN)'],
+  ]},
+  {t:'Detalhamento do sinistro', f:[
+    ['analise_detalhamento_sinistro_local_fato_url','Local do fato (URL)'],
+    ['analise_detalhamento_sinistro_relato_fato_bo','Relato do fato (B.O.)'],
+    ['analise_detalhamento_sinistro_item_regulamento_segurado','Item do regulamento'],
+    ['analise_detalhamento_sinistro_art_ctb','Artigo do CTB'],
+    ['analise_detalhamento_sinistro_solicitado_sindicancia_pericia','Solicitou sindicância/perícia'],
+    ['analise_detalhamento_sinistro_responsavel_sindicancia','Responsável sindicância'],
+    ['analise_detalhamento_sinistro_resultado_sindicancia','Resultado sindicância'],
+    ['analise_detalhamento_sinistro_pontos_exaltar_analista','Pontos a exaltar (analista)'],
+    ['analise_detalhamento_sinistro_resumo_fato','Resumo do fato'],
+    ['analise_detalhamento_sinistro_parecer_regulagem','Parecer da regulação'],
+  ]},
+  {t:'Conclusão', f:[
+    ['conclusao_analise_conclusao_segurado','Conclusão (segurado)'],
+    ['conclusao_analise_danos_veiculo_segurado','Danos no veículo'],
+    ['conclusao_analise_classificacao_no_fato','Classificação no fato'],
+    ['conclusao_analise_monta','Monta'],
+    ['conclusao_analise_analista_responsavel','Analista responsável'],
+    ['conclusao_analise_inicio_analise','Início da análise'],
+    ['conclusao_analise_conclusao_analise','Conclusão da análise'],
+    ['conclusao_analise_sinistro_aberto_em','Sinistro aberto em'],
+    ['conclusao_analise_analise_recebida_em','Análise recebida em'],
+    ['conclusao_analise_analise_liberada_em','Análise liberada em'],
+    ['conclusao_analise_observacoes','Observações'],
+    ['arquivo_origem','Arquivo de origem'],
+  ]},
+];
+const BIG = new Set(['analise_detalhamento_sinistro_relato_fato_bo','analise_detalhamento_sinistro_item_regulamento_segurado',
+  'analise_detalhamento_sinistro_pontos_exaltar_analista','analise_detalhamento_sinistro_resumo_fato',
+  'analise_detalhamento_sinistro_parecer_regulagem','conclusao_analise_conclusao_segurado',
+  'conclusao_analise_danos_veiculo_segurado','conclusao_analise_observacoes','consulta_detran_detalhamento_restricao_cnh',
+  'arquivo_origem']);
+const DATEISH = /(data|_em$|validade|inicio|conclusao_analise$|vencimento)/;
+/* columns searched server-side */
+const SEARCH_COLS = ['identificacao_envolvidos_placa_segurado','analise_cobertura_sinistro_numero_bo',
+  'analise_detalhamento_sinistro_resumo_fato','conclusao_analise_conclusao_segurado',
+  'conclusao_analise_analista_responsavel','conclusao_analise_classificacao_no_fato','pessoa',
+  'identificacao_veiculo_veiculo','analise_detalhamento_sinistro_relato_fato_bo'];
+
+function ressBadge(v){
+  const u=(v||'').toUpperCase();
+  if(u.startsWith('S')) return '<span class="badge ress-yes">SIM</span>';
+  if(u.startsWith('N')) return '<span class="badge ress-no">NÃO</span>';
+  return '<span class="badge neutral">—</span>';
+}
+function ressBadgeBig(v){
+  const u=(v||'').toUpperCase();
+  if(u.startsWith('S')) return '<span class="badge ress-yes">RESSARCIMENTO</span>';
+  if(u.startsWith('N')) return '<span class="badge ress-no">NÃO RESSARCIMENTO</span>';
+  return '<span class="badge neutral">RESSARCIMENTO N/D</span>';
+}
+function coberBadge(v){
+  if(!v) return '<span class="badge neutral">—</span>';
+  const u=v.toUpperCase();
+  if(u.startsWith('SIM')) return '<span class="badge yes">'+esc(v)+'</span>';
+  if(u.startsWith('N')) return '<span class="badge no">'+esc(v)+'</span>';
+  return '<span class="badge neutral">'+esc(v)+'</span>';
+}
+
+/* ── supabase REST helper ── */
+async function sb(path){
+  const r = await fetch(SB_URL+'/rest/v1/'+path, {
+    headers:{apikey:SB_KEY, Authorization:'Bearer '+SB_KEY, Prefer:'count=exact'}
+  });
+  if(!r.ok) throw new Error('Supabase '+r.status+': '+await r.text());
+  const total = (()=>{const cr=r.headers.get('content-range'); return cr&&cr.includes('/')?parseInt(cr.split('/')[1]):null;})();
+  return {data:await r.json(), total};
+}
+
+/* ── view switching ── */
+function showView(v,scroll){
+  if(v!=='dashboard'&&v!=='registros') v='dashboard';
+  document.querySelectorAll('.navlink').forEach(x=>x.classList.toggle('active',x.dataset.view===v));
+  document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
+  $('#view-'+v).classList.add('active');
+  if(v==='registros' && !regInit){ initRegistros(); }
+  if(scroll!==false) window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.navlink').forEach(b=>b.addEventListener('click',()=>{location.hash=b.dataset.view;}));
+window.addEventListener('hashchange',()=>showView(location.hash.replace('#','')));
+
+/* ════════ DASHBOARD ════════ */
+fetch('data/summary.json').then(r=>r.json()).then(s=>{
+  const rs=s.ress_sim||0, rn=s.ress_nao||0;
+  const kpis=[
+    {l:'Total de documentos',v:fmt(s.total_docs),d:s.n_analysts+' analistas · '+s.n_sheets+' abas'},
+    {l:'Ressarcimentos (SIM)',v:fmt(rs),d:Math.round(100*rs/s.total_docs)+'% do total',hi:true},
+    {l:'Não ressarcimento',v:fmt(rn),d:Math.round(100*rn/s.total_docs)+'% do total'},
+    {l:'Documentos 2025',v:fmt(s.total_2025),d:Math.round(100*s.total_2025/s.total_docs)+'% do total'},
+    {l:'Documentos 2024',v:fmt(s.total_2024),d:Math.round(100*s.total_2024/s.total_docs)+'% do total'},
+  ];
+  $('#kpis').innerHTML=kpis.map(k=>`<div class="stat-card${k.hi?' hi':''}"><div class="stat-label">${k.l}</div>
+    <div class="stat-value">${k.v}</div><div class="stat-detail">${k.d}</div></div>`).join('');
+  const max=Math.max(...s.analysts.map(a=>a.total));
+  $('#chart').innerHTML=s.analysts.filter(a=>a.total>0).map(a=>`
+    <div class="bar-row"><div class="bar-name" title="${esc(a.analyst)}">${esc(a.analyst)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(100*a.total/max).toFixed(1)}%"></div></div>
+      <div class="bar-val">${fmt(a.total)}</div></div>`).join('');
+  $('#summary-table tbody').innerHTML=s.analysts.map(a=>`<tr>
+      <td>${esc(a.analyst)}</td><td class="num">${fmt(a.y2024)}</td>
+      <td class="num">${fmt(a.y2025)}</td><td class="num">${fmt(a.total)}</td>
+      <td class="num" style="color:var(--neon);font-weight:700">${fmt(a.ress||0)}</td></tr>`).join('')
+    +`<tr class="t-total"><td>TOTAL</td><td class="num">${fmt(s.total_2024)}</td>
+      <td class="num">${fmt(s.total_2025)}</td><td class="num">${fmt(s.total_docs)}</td>
+      <td class="num">${fmt(s.ress_sim||0)}</td></tr>`;
+  $('#foot-meta').textContent=`${fmt(s.total_docs)} documentos · ${s.n_analysts} analistas · período 2024–2025`;
+});
+
+/* ════════ REGISTROS (Supabase) ════════ */
+let regInit=false, ENTRIES=[], cur=null, page=1, term='', ressFilter='', total=0, searchTimer=null;
+
+async function initRegistros(){
+  regInit=true;
+  try{
+    ENTRIES = await fetch('data/index.json').then(r=>r.json());
+  }catch(e){ ENTRIES=[]; }
+  ENTRIES = ENTRIES.filter(x=>x.count>0);
+  $('#sel-sheet').innerHTML = ENTRIES.map((x,i)=>
+    `<option value="${i}">${esc(x.analyst)} — ${x.year||'s/ano'} (${fmt(x.count)})</option>`).join('');
+  $('#sel-sheet').addEventListener('change',e=>{cur=ENTRIES[+e.target.value];page=1;loadPage();});
+  $('#sel-ress').addEventListener('change',e=>{ressFilter=e.target.value;page=1;loadPage();});
+  $('#search').addEventListener('input',e=>{
+    clearTimeout(searchTimer);
+    searchTimer=setTimeout(()=>{term=e.target.value.trim();page=1;loadPage();},350);
+  });
+  $('#prev').addEventListener('click',()=>{if(page>1){page--;loadPage();}});
+  $('#next').addEventListener('click',()=>{if(page<totalPages()){page++;loadPage();}});
+  if(ENTRIES.length){ cur=ENTRIES[0]; loadPage(); }
+  else $('#reg-content').innerHTML='<div class="empty">Sem dados.</div>';
+}
+const totalPages = ()=>Math.max(1,Math.ceil(total/PER));
+
+function buildQuery(){
+  let q = TABLE + '?select=' + encodeURIComponent(LIST_SELECT);
+  q += '&analista_tab=eq.' + encodeURIComponent(cur.analyst);
+  q += cur.year ? ('&ano=eq.'+cur.year) : '&ano=is.null';
+  if(ressFilter==='sim') q += '&analise_detalhamento_sinistro_ressarcimento=ilike.s*';
+  else if(ressFilter==='nao') q += '&analise_detalhamento_sinistro_ressarcimento=ilike.n*';
+  if(term){
+    const safe = encodeURIComponent(term.replace(/[,()]/g,' '));
+    q += '&or=(' + SEARCH_COLS.map(c=>`${c}.ilike.*${safe}*`).join(',') + ')';
+  }
+  q += '&order=id.asc';
+  q += '&limit='+PER+'&offset='+((page-1)*PER);
+  return q;
+}
+
+async function loadPage(){
+  $('#pager').style.display='none';
+  $('#reg-content').innerHTML='<div class="loading"><div class="spinner"></div><div>Consultando…</div></div>';
+  let res;
+  try{ res = await sb(buildQuery()); }
+  catch(e){ $('#reg-content').innerHTML='<div class="empty">Erro ao consultar o banco.<br><small>'+esc(e.message)+'</small></div>'; return; }
+  total = res.total ?? res.data.length;
+  if(!res.data.length){
+    $('#reg-content').innerHTML='<div class="empty">Nenhum registro encontrado.</div>';
+    $('#pager').style.display='none'; return;
+  }
+  $('#reg-content').innerHTML=`<div class="table-wrap"><table>
+    <thead><tr><th>Placa</th><th>Ressarc.</th><th>Data fato</th><th>Classificação</th><th>Coberto</th>
+      <th>Conclusão (segurado)</th><th>Analista</th><th></th></tr></thead><tbody>
+    ${res.data.map(r=>`<tr class="clickable" data-id="${r.id}">
+      <td><b>${esc(r.placa||'—')}</b></td>
+      <td>${ressBadge(r.ress)}</td>
+      <td style="white-space:nowrap">${esc(cleanDate(r.data_fato)||'—')}</td>
+      <td>${r.classif?'<span class="badge neutral">'+esc(r.classif)+'</span>':'—'}</td>
+      <td>${coberBadge(r.coberto)}</td>
+      <td><div class="cell-clip" title="${esc(r.conclusao||'')}">${esc(r.conclusao||'—')}</div></td>
+      <td style="white-space:nowrap">${esc(r.analista||'—')}</td>
+      <td><span style="color:var(--neon);font-size:.8rem;font-weight:600">ver ›</span></td>
+    </tr>`).join('')}</tbody></table></div>`;
+  $('#reg-content').querySelectorAll('tr.clickable').forEach(tr=>
+    tr.addEventListener('click',()=>openModal(tr.dataset.id)));
+  $('#pager').style.display='flex';
+  $('#pager-info').textContent=`${fmt(total)} registro(s)`+(term?` para "${term}"`:'');
+  $('#page-label').textContent=`Página ${page} / ${totalPages()}`;
+  $('#prev').disabled=page<=1; $('#next').disabled=page>=totalPages();
+}
+
+/* ── detail modal: fetch full row by id ── */
+async function openModal(id){
+  $('#modal-bg').classList.add('open');
+  $('#m-title').textContent='Detalhe';
+  $('#m-sub').textContent='';
+  $('#m-body').innerHTML='<div class="loading"><div class="spinner"></div><div>Carregando documento…</div></div>';
+  let r;
+  try{
+    const res = await sb(`${TABLE}?id=eq.${id}&select=*&limit=1`);
+    r = res.data[0];
+  }catch(e){ $('#m-body').innerHTML='<div class="empty">Erro ao carregar.</div>'; return; }
+  if(!r){ $('#m-body').innerHTML='<div class="empty">Não encontrado.</div>'; return; }
+  $('#m-title').textContent=(r.identificacao_envolvidos_placa_segurado||'Documento')
+    +(r.identificacao_veiculo_veiculo?' · '+r.identificacao_veiculo_veiculo:'');
+  $('#m-sub').innerHTML = ressBadgeBig(r.analise_detalhamento_sinistro_ressarcimento) + ' &nbsp; '
+    + esc([r.conclusao_analise_analista_responsavel,cleanDate(r.analise_cobertura_sinistro_data_fato)]
+      .filter(Boolean).join(' · '));
+  let html='';
+  for(const g of GROUPS){
+    const present=g.f.filter(([c])=>r[c]!=null&&String(r[c]).trim()!=='');
+    if(!present.length) continue;
+    html+=`<div class="grp-title">${g.t}</div>`;
+    const small=present.filter(([c])=>!BIG.has(c)), big=present.filter(([c])=>BIG.has(c));
+    if(small.length){
+      html+='<div class="field-grid">'+small.map(([c,l])=>{
+        let v = DATEISH.test(c) ? cleanDate(r[c]) : r[c];
+        v = c==='analise_cobertura_sinistro_analise_financeira_esta_coberto' ? coberBadge(r[c]) : esc(v);
+        return `<div class="field"><div class="k">${l}</div><div class="v">${v}</div></div>`;
+      }).join('')+'</div>';
+    }
+    html+=big.map(([c,l])=>`<div class="field"><div class="k">${l}</div><div class="v big">${esc(r[c])}</div></div>`).join('');
+  }
+  $('#m-body').innerHTML=html||'<div class="empty">Sem dados preenchidos.</div>';
+}
+$('#m-close').addEventListener('click',()=>$('#modal-bg').classList.remove('open'));
+$('#modal-bg').addEventListener('click',e=>{if(e.target===$('#modal-bg'))$('#modal-bg').classList.remove('open');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#modal-bg').classList.remove('open');});
+
+/* ── initial route ── */
+showView(location.hash.replace('#',''), false);
+</script>
+</body>
+</html>

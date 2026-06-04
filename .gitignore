@@ -1,0 +1,9 @@
+# OS
+Thumbs.db
+.DS_Store
+# nunca versionar chaves/segredos
+*.env
+*env.sh
+loovi_env.sh
+.vercel
+node_modules/

@@ -1,0 +1,131 @@
+{
+"total_docs": 34254,
+"total_2024": 4929,
+"total_2025": 29325,
+"n_analysts": 17,
+"n_sheets": 29,
+"analysts": [
+{
+"analyst": "DANIELA LAGE",
+"y2024": 623,
+"y2025": 5487,
+"total": 6110,
+"ress": 5852
+},
+{
+"analyst": "IGOR FELIPPE",
+"y2024": 8,
+"y2025": 5604,
+"total": 5612,
+"ress": 4230
+},
+{
+"analyst": "BIANCA IDAMARA",
+"y2024": 659,
+"y2025": 4562,
+"total": 5221,
+"ress": 803
+},
+{
+"analyst": "MATHEUS FILIPE",
+"y2024": 869,
+"y2025": 3947,
+"total": 4816,
+"ress": 3084
+},
+{
+"analyst": "TAYNE ALMEIDA",
+"y2024": 0,
+"y2025": 3483,
+"total": 3483,
+"ress": 3386
+},
+{
+"analyst": "KARINA SILVA",
+"y2024": 4,
+"y2025": 3277,
+"total": 3281,
+"ress": 3266
+},
+{
+"analyst": "JOÃO ASSUNÇÃO",
+"y2024": 1320,
+"y2025": 1012,
+"total": 2332,
+"ress": 1157
+},
+{
+"analyst": "ALISSON COSTA",
+"y2024": 0,
+"y2025": 1859,
+"total": 1859,
+"ress": 168
+},
+{
+"analyst": "PRYSCILLA BEDÊ",
+"y2024": 817,
+"y2025": 48,
+"total": 865,
+"ress": 133
+},
+{
+"analyst": "GUILHERME NEVES",
+"y2024": 582,
+"y2025": 13,
+"total": 595,
+"ress": 104
+},
+{
+"analyst": "DUANNE COSTA",
+"y2024": 8,
+"y2025": 21,
+"total": 29,
+"ress": 3
+},
+{
+"analyst": "FERNANDA",
+"y2024": 19,
+"y2025": 0,
+"total": 19,
+"ress": 0
+},
+{
+"analyst": "LARA JORGE",
+"y2024": 2,
+"y2025": 9,
+"total": 11,
+"ress": 1
+},
+{
+"analyst": "AMANDA",
+"y2024": 10,
+"y2025": 0,
+"total": 10,
+"ress": 0
+},
+{
+"analyst": "JAIRO CARDOSO",
+"y2024": 7,
+"y2025": 0,
+"total": 7,
+"ress": 2
+},
+{
+"analyst": "MARCELO LACERDA",
+"y2024": 0,
+"y2025": 2,
+"total": 2,
+"ress": 0
+},
+{
+"analyst": "SHIRLEY SANTOS",
+"y2024": 1,
+"y2025": 1,
+"total": 2,
+"ress": 0
+}
+],
+"ress_sim": 22189,
+"ress_nao": 7136,
+"ress_vazio": 4929
+}
