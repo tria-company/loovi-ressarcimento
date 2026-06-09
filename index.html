@@ -209,7 +209,7 @@
       <p class="subtitle">Distribuição por ano</p>
       <div class="table-wrap">
         <table id="summary-table">
-          <thead><tr><th>Analista</th><th class="num">2024</th><th class="num">2025</th><th class="num">Total</th><th class="num">Ressarc.</th></tr></thead>
+          <thead><tr><th>Analista</th><th class="num">2024</th><th class="num">2025</th><th class="num">Total</th><th class="num">Ressarc.</th><th class="num">%</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -482,10 +482,12 @@ fetch('data/summary.json').then(r=>r.json()).then(s=>{
   $('#summary-table tbody').innerHTML=s.analysts.map(a=>`<tr>
       <td>${esc(a.analyst)}</td><td class="num">${fmt(a.y2024)}</td>
       <td class="num">${fmt(a.y2025)}</td><td class="num">${fmt(a.total)}</td>
-      <td class="num" style="color:var(--neon);font-weight:700">${fmt(a.ress||0)}</td></tr>`).join('')
+      <td class="num" style="color:var(--neon);font-weight:700">${fmt(a.ress||0)}</td>
+      <td class="num">${a.total?Math.round(100*(a.ress||0)/a.total):0}%</td></tr>`).join('')
     +`<tr class="t-total"><td>TOTAL</td><td class="num">${fmt(s.total_2024)}</td>
       <td class="num">${fmt(s.total_2025)}</td><td class="num">${fmt(s.total_docs)}</td>
-      <td class="num">${fmt(s.ress_sim||0)}</td></tr>`;
+      <td class="num">${fmt(s.ress_sim||0)}</td>
+      <td class="num">${s.total_docs?Math.round(100*(s.ress_sim||0)/s.total_docs):0}%</td></tr>`;
   $('#foot-meta').textContent=`${fmt(s.total_docs)} documentos · ${s.n_analysts} analistas · período 2024–2025`;
 });
 
